@@ -1,8 +1,13 @@
 # Joint ADT-enabled SDMA, OFDMA, and Strict FFR for Dense LiFi Attocell Networks
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19708389.svg)](https://doi.org/10.5281/zenodo.19708389)
+
 Reference implementation and Monte Carlo simulation code for the manuscript submitted to
 *Scientific Reports*. The code reproduces every numerical result reported in Table 2 and
 Section 7.5 (δ sensitivity and user-density sensitivity) of the paper.
+
+An archived snapshot of this repository is available on Zenodo with DOI
+[`10.5281/zenodo.19708389`](https://doi.org/10.5281/zenodo.19708389).
 
 ## Repository contents
 

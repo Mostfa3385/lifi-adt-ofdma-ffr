@@ -17,7 +17,6 @@ import numpy as np
 from scipy.spatial import KDTree
 from numpy.fft import ifft
 import networkx as nx
-import matplotlib.pyplot as plt
 
 # ===================== System Parameters =====================
 # Notation follows Section 3 of the manuscript; values match Table 1.
@@ -515,7 +514,7 @@ if __name__ == '__main__':
     res = simulate(trials=10000, users_per_macro=42, Pt_electrical=3.0, scheduler='none',
                    rings=2, NLED=7, beam_half_deg=20.0, rx_FOV_semi_deg=40.0,
                    boost_factor_edge=0.7, led_efficiency=0.3, debug_print=True)
-    print('\nRESULTS v2_colocated:')
+    print('\nBaseline run results:')
     print('Mean SINR (dB)=', 10*math.log10(res['mean_sinr_linear'] + 1e-30))
     print('Median SINR (dB)=', 10*math.log10(res['median_sinr_linear'] + 1e-30))
     print('Jain fairness=', res['fairness_jain'])
