@@ -1,0 +1,10 @@
+# Python dependencies for the LiFi ADT + OFDMA + strict-FFR simulator.
+# Tested with Python 3.11 on Windows 10 and Ubuntu 22.04.
+# Lower bounds reflect the oldest versions known to run the code; newer
+# minor/patch releases are expected to work without changes.
+
+numpy>=1.24,<3
+scipy>=1.10,<2
+pandas>=2.0,<3
+networkx>=3.0,<4
+matplotlib>=3.7,<4

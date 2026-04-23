@@ -1,0 +1,43 @@
+cff-version: 1.2.0
+message: "Citation metadata for this repository."
+title: >-
+  Joint ADT-enabled SDMA, OFDMA, and Strict FFR for Dense LiFi Attocell
+  Networks — Simulation Code
+type: software
+authors:
+  - family-names: Mohamed
+    given-names: Mostafa
+    # orcid: "https://orcid.org/0000-0000-0000-0000"   # add an ORCID later if registered
+repository-code: "https://github.com/<user>/<repo>"
+url: "https://github.com/<user>/<repo>"
+version: "1.0.0"
+date-released: "2026-04-21"
+keywords:
+  - LiFi
+  - visible light communication
+  - angle-diversity transmitter
+  - SDMA
+  - OFDMA
+  - fractional frequency reuse
+  - inter-cell interference
+  - Monte Carlo simulation
+# Once Zenodo mints a DOI for the first GitHub release, uncomment and fill in:
+# identifiers:
+#   - type: doi
+#     value: 10.5281/zenodo.XXXXXXX
+#     description: Archived snapshot of this repository on Zenodo
+preferred-citation:
+  type: article
+  title: >-
+    Joint Angle-Diversity SDMA, OFDMA, and Strict FFR Framework for Dense LiFi
+    Attocell Networks
+  authors:
+    - family-names: Mohamed
+      given-names: Mostafa
+  journal: Scientific Reports
+  year: 2026
+  # volume: <volume>
+  # issue: <issue>
+  # start: <start page>
+  # end: <end page>
+  # doi: <paper DOI once assigned>
