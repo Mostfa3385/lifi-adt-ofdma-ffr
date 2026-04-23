@@ -226,7 +226,12 @@ def concentrator_gain(psi, psi_c):
 
 
 def channel_gain_los(d_horiz, hf, A_pd, m, psi_c, Ts=1.0):
-    """Lambertian LOS DC channel gain H(r) per Eq. (1); 0 if psi > psi_c."""
+    """Lambertian LOS DC channel gain H(r) per Eq. (1); 0 if psi > psi_c.
+
+    Assumes an upward-facing photodiode and a downward-facing LED directly
+    above the receiver plane. For the orientation-sensitivity study (Sec. 7.6)
+    use ``channel_gain_los_v`` with a tilted PD normal instead.
+    """
     d = math.sqrt(d_horiz*d_horiz + hf*hf)
     if d <= 0:
         return 0.0
@@ -237,6 +242,55 @@ def channel_gain_los(d_horiz, hf, A_pd, m, psi_c, Ts=1.0):
     g = concentrator_gain(psi, psi_c)
     H = ((m+1) * A_pd / (2 * math.pi * d*d)) * (cos_phi**m) * Ts * g * cos_phi
     return max(0.0, H)
+
+
+def channel_gain_los_v(tx_cx, tx_cy, hf, rx_x, rx_y, A_pd, m, psi_c,
+                       rx_normal=(0.0, 0.0, 1.0), Ts=1.0):
+    """Vectorial Lambertian LOS gain that supports a tilted receiver.
+
+    The LED is fixed at ``(tx_cx, tx_cy, hf)`` above the receiver plane and
+    radiates along its own downward normal, so the radiation angle satisfies
+    ``cos(phi) = hf / d``. The incidence angle at the photodiode is computed
+    from the 3-D geometry against ``rx_normal`` (unit vector pointing out of
+    the active photodiode surface). With ``rx_normal = (0,0,1)`` this reduces
+    exactly to ``channel_gain_los``; it is therefore a strict generalization
+    used only when a non-zero tilt standard deviation is requested.
+    """
+    dx = tx_cx - rx_x
+    dy = tx_cy - rx_y
+    dz = hf
+    d = math.sqrt(dx*dx + dy*dy + dz*dz)
+    if d <= 0.0:
+        return 0.0
+    ux, uy, uz = dx / d, dy / d, dz / d
+    cos_phi = dz / d
+    nx, ny, nz = rx_normal
+    cos_psi = ux*nx + uy*ny + uz*nz
+    if cos_psi <= 0.0:
+        return 0.0
+    psi = math.acos(max(-1.0, min(1.0, cos_psi)))
+    if psi > psi_c:
+        return 0.0
+    g = concentrator_gain(psi, psi_c)
+    H = ((m + 1) * A_pd / (2.0 * math.pi * d * d)) * (cos_phi ** m) * Ts * g * cos_psi
+    return max(0.0, H)
+
+
+def sample_rx_normal(sigma_deg):
+    """Draw a random PD normal for a device with polar tilt standard deviation
+    ``sigma_deg`` (degrees). The polar angle from vertical is drawn from a
+    folded Gaussian and clipped at 80 deg to avoid grazing incidence; the
+    azimuth is uniform on [0, 2*pi). ``sigma_deg = 0`` returns (0, 0, 1)
+    exactly and reproduces the baseline upward-facing model.
+    """
+    if sigma_deg <= 0.0:
+        return (0.0, 0.0, 1.0)
+    sigma = math.radians(sigma_deg)
+    beta = abs(np.random.normal(0.0, sigma))
+    beta = min(beta, math.radians(80.0))
+    gamma = np.random.uniform(0.0, 2.0 * math.pi)
+    sb, cb = math.sin(beta), math.cos(beta)
+    return (sb * math.cos(gamma), sb * math.sin(gamma), cb)
 
 # ===================== OFDMA subcarrier partitioning =====================
 def partition_subcarriers(subs, num_users):
@@ -254,16 +308,23 @@ def simulate(
     Pt_electrical=3.0,
     B_e=3,
     power_control_alpha=0.0,
-    scheduler='none',
+    scheduler='full-load',
     rings=2,
     NLED=7,
     beam_half_deg=20.0,
     rx_FOV_semi_deg=40.0,
     led_efficiency=0.3,
     boost_factor_edge=1.0,
+    rx_tilt_sigma_deg=0.0,
     debug_print=True
 ):
     P_optical_macro = led_efficiency * Pt_electrical
+
+    # Normalise legacy scheduler label 'none' -> 'full-load'. Both names are
+    # accepted so pre-existing command-line invocations and CSV baselines
+    # remain reproducible.
+    if scheduler in ('none', None):
+        scheduler = 'full-load'
 
     all_mcs, macro_centers, _ = build_topology(rings=rings, NLED=NLED)
     _, conflicts = color_edge_bands(all_mcs, B_e)
@@ -337,8 +398,20 @@ def simulate(
                 y = rcy + r * math.sin(th)
                 mc.users.append((x, y))
 
-        # Interference-loading regime: 'none' activates every user (full-activity),
-        # 'rr1' activates exactly one user per region per trial (round-robin-1).
+        # Optional receiver-orientation sampling (Sec. 7.6). When
+        # rx_tilt_sigma_deg == 0 this dict stays empty and the original
+        # axial channel_gain_los(...) is used, so the baseline numbers in
+        # Tables 2-3 are bit-reproducible.
+        rx_normals = {}
+        if rx_tilt_sigma_deg > 0:
+            for i, mc in enumerate(all_mcs):
+                for ui in range(len(mc.users)):
+                    rx_normals[(i, ui)] = sample_rx_normal(rx_tilt_sigma_deg)
+
+        # Interference-loading regime: 'full-load' activates every user (full
+        # activity, worst-case interference), 'rr1' activates exactly one user
+        # per region per trial (round-robin-1). The legacy label 'none' is
+        # normalised to 'full-load' at the top of simulate().
         active_map = {}
         for i, mc in enumerate(all_mcs):
             if scheduler == 'rr1':
@@ -403,7 +476,13 @@ def simulate(
                     if theta_deg > beam_half_deg or theta_deg > rx_FOV_semi_deg:
                         continue
                     d_h = math.hypot(x - tx_cx, y - tx_cy)
-                    H = channel_gain_los(d_h, hf, A_pd_phys, m, psi_c, Ts=1.0)
+                    if rx_tilt_sigma_deg > 0:
+                        rxn = rx_normals.get((i, ui), (0.0, 0.0, 1.0))
+                        H = channel_gain_los_v(tx_cx, tx_cy, hf, x, y,
+                                               A_pd_phys, m, psi_c,
+                                               rx_normal=rxn, Ts=1.0)
+                    else:
+                        H = channel_gain_los(d_h, hf, A_pd_phys, m, psi_c, Ts=1.0)
                     if H <= 0:
                         continue
 
@@ -447,7 +526,13 @@ def simulate(
                     continue
 
                 d_h = math.hypot(x - tx_cx, y - tx_cy)
-                H = channel_gain_los(d_h, hf, A_pd_phys, m, psi_c, Ts=1.0)
+                if rx_tilt_sigma_deg > 0:
+                    rxn = rx_normals.get((i, ui), (0.0, 0.0, 1.0))
+                    H = channel_gain_los_v(tx_cx, tx_cy, hf, x, y,
+                                           A_pd_phys, m, psi_c,
+                                           rx_normal=rxn, Ts=1.0)
+                else:
+                    H = channel_gain_los(d_h, hf, A_pd_phys, m, psi_c, Ts=1.0)
                 if H <= 0:
                     continue
 
@@ -511,7 +596,7 @@ if __name__ == '__main__':
     # in the paper (10,000 Monte Carlo trials). For the full protocol summary
     # and sensitivity sweeps used to produce Tables 2-3 and Figures 4-8, use
     # run_full_protocol_sensitivity_v3.py instead.
-    res = simulate(trials=10000, users_per_macro=42, Pt_electrical=3.0, scheduler='none',
+    res = simulate(trials=10000, users_per_macro=42, Pt_electrical=3.0, scheduler='full-load',
                    rings=2, NLED=7, beam_half_deg=20.0, rx_FOV_semi_deg=40.0,
                    boost_factor_edge=0.7, led_efficiency=0.3, debug_print=True)
     print('\nBaseline run results:')

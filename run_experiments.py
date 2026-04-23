@@ -1,8 +1,9 @@
 """Full-protocol experiment driver implementing Algorithm 2 of the manuscript.
 
 Runs the proposed ADT + OFDMA (disjoint subcarriers) + strict-FFR protocol
-under the two interference-loading regimes (``'none'`` = full activity,
-``'rr1'`` = round-robin one user per region), plus the two sensitivity sweeps
+under the two interference-loading regimes (``'full-load'`` = every user
+active in every trial, i.e. worst-case interference; ``'rr1'`` = round-robin
+one user per region), plus the two sensitivity sweeps
 over the center-radius fraction delta and user density.
 
 Produces the three CSV summaries referenced by Tables 2-3 and Figures 4-8:
@@ -122,7 +123,7 @@ def main():
     # 1) Baseline summary (Algorithm 2, step 2): run the full protocol at the
     #    baseline (delta, users_per_macro) under each scheduler regime.
     rows = []
-    for sched in ['none', 'rr1']:
+    for sched in ['full-load', 'rr1']:
         print(f'Running FULL protocol | scheduler={sched}')
         rows.append(run_case(args.trials, args.Pt, sched, args.delta, args.users_per_macro,
                              beam_half_deg=args.beam_half_deg, rx_FOV_semi_deg=args.rx_FOV_semi_deg,
@@ -134,7 +135,7 @@ def main():
     deltas = [0.5, 2.0/3.0, 0.8]
     rows = []
     for dval in deltas:
-        for sched in ['none', 'rr1']:
+        for sched in ['full-load', 'rr1']:
             print(f'Running sensitivity delta={dval:.3f} | scheduler={sched}')
             rows.append(run_case(args.trials, args.Pt, sched, dval, args.users_per_macro,
                                  beam_half_deg=args.beam_half_deg, rx_FOV_semi_deg=args.rx_FOV_semi_deg,
@@ -146,7 +147,7 @@ def main():
     users_list = [14, 28, 42, 56]
     rows = []
     for upm in users_list:
-        for sched in ['none', 'rr1']:
+        for sched in ['full-load', 'rr1']:
             print(f'Running sensitivity users_per_macro={upm} | scheduler={sched}')
             rows.append(run_case(args.trials, args.Pt, sched, 2.0/3.0, upm,
                                  beam_half_deg=args.beam_half_deg, rx_FOV_semi_deg=args.rx_FOV_semi_deg,

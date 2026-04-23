@@ -10,8 +10,8 @@ authors:
     # orcid: "https://orcid.org/0000-0000-0000-0000"   # add an ORCID later if registered
 repository-code: "https://github.com/Mostfa3385/lifi-adt-ofdma-ffr"
 url: "https://github.com/Mostfa3385/lifi-adt-ofdma-ffr"
-version: "1.0.1"
-date-released: "2026-04-21"
+version: "1.0.2"
+date-released: "2026-04-23"
 doi: "10.5281/zenodo.19708389"
 identifiers:
   - type: doi
