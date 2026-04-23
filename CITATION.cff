@@ -12,11 +12,11 @@ repository-code: "https://github.com/Mostfa3385/lifi-adt-ofdma-ffr"
 url: "https://github.com/Mostfa3385/lifi-adt-ofdma-ffr"
 version: "1.0.2"
 date-released: "2026-04-23"
-doi: "10.5281/zenodo.19708389"
+doi: "10.5281/zenodo.19714290"
 identifiers:
   - type: doi
-    value: "10.5281/zenodo.19708389"
-    description: Archived snapshot of this repository on Zenodo
+    value: "10.5281/zenodo.19714290"
+    description: Archived snapshot of this repository on Zenodo (v1.0.2)
 keywords:
   - LiFi
   - visible light communication

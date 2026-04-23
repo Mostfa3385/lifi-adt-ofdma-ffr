@@ -1,6 +1,7 @@
 # Joint ADT-enabled SDMA, OFDMA, and Strict FFR for Dense LiFi Attocell Networks
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19708389.svg)](https://doi.org/10.5281/zenodo.19708389)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19714290.svg)](https://doi.org/10.5281/zenodo.19714290)
+
 
 The code reproduces every numerical result reported in the paper:
 Table 2 (baseline), Section 7.5 (δ sensitivity and user-density sensitivity),
@@ -8,7 +9,7 @@ Table 4 / Section 7.6 (receiver orientation sensitivity), and Table 5 / Section 
 (ablation of ADT-SDMA, OFDMA and strict-FFR).
 
 An archived snapshot of this repository is available on Zenodo with DOI
-[`10.5281/zenodo.19708389`](https://doi.org/10.5281/zenodo.19708389).
+[`10.5281/zenodo.19714290`](https://doi.org/10.5281/zenodo.19714290) (v1.0.2).
 
 ## Repository contents
 
