@@ -8,8 +8,8 @@ authors:
   - family-names: Mohamed
     given-names: Mostafa
     # orcid: "https://orcid.org/0000-0000-0000-0000"   # add an ORCID later if registered
-repository-code: "https://github.com/<user>/<repo>"
-url: "https://github.com/<user>/<repo>"
+repository-code: "https://github.com/Mostfa3385/lifi-adt-ofdma-ffr"
+url: "https://github.com/Mostfa3385/lifi-adt-ofdma-ffr"
 version: "1.0.0"
 date-released: "2026-04-21"
 keywords:

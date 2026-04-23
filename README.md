@@ -38,8 +38,8 @@ paper.
 ## Installation
 
 ```bash
-git clone https://github.com/<user>/<repo>.git
-cd <repo>
+git clone https://github.com/Mostfa3385/lifi-adt-ofdma-ffr.git
+cd lifi-adt-ofdma-ffr
 python -m venv .venv
 # Windows:
 .venv\Scripts\activate
